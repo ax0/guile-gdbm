@@ -83,6 +83,8 @@
 
 (define-foreign %gdbm-exists int "gdbm_exists" (list '* datum))
 
+(define-foreign %gdbm-errno-location '* "gdbm_errno_location" '())
+
 (define-foreign %gdbm-strerror '* "gdbm_strerror" (list int))
 
 (define-foreign %gdbm-setopt int "gdbm_setopt" `(* ,int * ,int))
@@ -151,10 +153,8 @@
 
 ;;; errors
 
-(define %errno (dynamic-pointer "gdbm_errno" libgdbm))
-
 (define (gdbm-errno)
-  (pointer-address (dereference-pointer %errno)))
+  (modulo (pointer-address (dereference-pointer (%gdbm-errno-location))) #x100))
 
 (define (gdbm-error)
   (error (pointer->string (%gdbm-strerror (gdbm-errno)))))
